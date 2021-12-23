@@ -14,8 +14,8 @@ class Tree
     return Node.new(array[0], nil, nil) if array.length == 1
 
     root = array.length / 2
-    left = build_tree(array[0..root-1])
-    right = build_tree(array[root+1..-1])
+    left = build_tree(array[0..root - 1])
+    right = build_tree(array[root + 1..-1])
     @root = Node.new(array[root], left, right)
   end
 
@@ -47,24 +47,38 @@ class Tree
 
   def postorder
   end
-  
-  def height
+
+  # returns the distance from node to leaf
+  def height(node)
+    height_sum = 0
+    return height_sum if node.left_children.nil? && node.right_children.nil?
+
+    height_sum += 1
+    return height_sum += height(node.left_children) unless node.left_children.nil?
+    return height_sum += height(node.right_children) unless node.right_children.nil?
+
+    height_sum
   end
-  
-  def depth
+
+  # returns the distance from node to root
+  def depth(node)
+    height(@root) - height(node)
   end
 
   def rebalance
   end
 
-  def pretty_print(node = @root, prefix = '', is_left = true)
-    pretty_print(node.right_children, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right_children
+  def pretty_print(node = @root, prefix = '', is_left: true)
+    pretty_print(node.right_children, "#{prefix}#{is_left ? '│   ' : '    '}", is_left: false) if node.right_children
     puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.value}"
-    pretty_print(node.left_children, "#{prefix}#{is_left ? '    ' : '│   '}", true) if node.left_children
+    pretty_print(node.left_children, "#{prefix}#{is_left ? '    ' : '│   '}", is_left: true) if node.left_children
   end
 end
 
 a = Tree.new([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324])
 p a.root
 p a.pretty_print
-p a.find(7)
+#p a.find(7)
+b = a.find(7)
+p a.depth(b)
+
