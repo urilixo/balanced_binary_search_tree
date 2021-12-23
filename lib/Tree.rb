@@ -5,7 +5,7 @@ class Tree
 
   def initialize(array)
     array.uniq!.sort!
-    build_tree(array)
+    @root = build_tree(array)
   end
 
   def build_tree(array)
@@ -16,7 +16,7 @@ class Tree
     root = array.length / 2
     left = build_tree(array[0..root - 1])
     right = build_tree(array[root + 1..-1])
-    @root = Node.new(array[root], left, right)
+    Node.new(array[root], left, right)
   end
 
   def insert
@@ -36,7 +36,24 @@ class Tree
     end
   end
 
-  def level_order
+  def level_order(node: @root)
+    queue = []
+    data = []
+    queue.unshift(node)
+
+    until queue.empty?
+      current_node = queue.pop
+
+      queue.unshift(current_node.left_children) unless current_node.left_children.nil?
+      queue.unshift(current_node.right_children) unless current_node.right_children.nil?
+
+      if block_given?
+        yield(current_node)
+      else
+        data << current_node.value
+      end
+    end
+    data
   end
 
   def inorder
@@ -81,4 +98,4 @@ p a.pretty_print
 #p a.find(7)
 b = a.find(7)
 p a.depth(b)
-
+p a.level_order
