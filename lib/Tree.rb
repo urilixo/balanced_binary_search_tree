@@ -19,10 +19,17 @@ class Tree
     Node.new(array[root], left, right)
   end
 
-  def insert
+  # Insertion happens at the first found leaf
+  def insert(value)
+    node = @root
+    until node.left_children.nil? && node.right_children.nil?
+      next node = node.left_children if value < node.value
+      next node = node.right_children if value > node.value
+    end
+    value < node.value ? node.left_children = Node.new(value, nil, nil) : node.right_children = Node.new(value, nil, nil)
   end
 
-  def delete
+  def delete(value)
   end
 
   def find(value, node: @root)
@@ -107,6 +114,7 @@ class Tree
   end
 
   def rebalance
+    @root = build_tree(postorder)
   end
 
   def pretty_print(node = @root, prefix = '', is_left: true)
@@ -124,9 +132,12 @@ p a.pretty_print
 #p a.depth(b)
 #p a.level_order
 #p a.level_order {|node| puts node.value}
-p a.inorder
+#p a.inorder
 #(a.inorder {|node| puts node.value})
-p a.preorder
+#p a.preorder
 #a.preorder { |node| puts node.value}
-p a.postorder
+#p a.postorder
+a.insert(600)
+a.insert(10)
+p a.pretty_print
 #a.postorder { |node| puts node.value}
