@@ -37,13 +37,11 @@ class Tree
   end
 
   def level_order(node: @root)
-    queue = []
+    queue = [node]
     data = []
-    queue.unshift(node)
 
     until queue.empty?
       current_node = queue.pop
-
       queue.unshift(current_node.left_children) unless current_node.left_children.nil?
       queue.unshift(current_node.right_children) unless current_node.right_children.nil?
 
@@ -53,10 +51,18 @@ class Tree
         data << current_node.value
       end
     end
-    data
+    data unless block_given?
   end
 
-  def inorder
+  def inorder(node: @root, array: [])
+    return unless node
+
+    inorder(node: node.left_children, array: array)
+    array << node unless block_given?
+    inorder(node: node.right_children, array: array)
+    return array.map(&:value) unless block_given?
+
+    array.each { |value| yield(value)} if block_given?
   end
 
   def preorder
@@ -96,6 +102,9 @@ a = Tree.new([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324])
 p a.root
 p a.pretty_print
 #p a.find(7)
-b = a.find(7)
-p a.depth(b)
-p a.level_order
+#b = a.find(7)
+#p a.depth(b)
+#p a.level_order
+#p a.level_order {|node| puts node.value}
+p a.inorder
+(a.inorder {|node| puts node.value})
