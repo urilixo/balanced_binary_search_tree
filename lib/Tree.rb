@@ -58,17 +58,35 @@ class Tree
     return unless node
 
     inorder(node: node.left_children, array: array)
-    array << node unless block_given?
+    array << node
     inorder(node: node.right_children, array: array)
     return array.map(&:value) unless block_given?
 
     array.each { |value| yield(value)} if block_given?
   end
 
-  def preorder
+  def preorder(node: @root, array: [])
+    return unless node
+
+    array << node
+    preorder(node: node.left_children, array: array)
+    preorder(node: node.right_children, array: array)
+
+    return array.map(&:value) unless block_given?
+
+    array.each { |value| yield(value)} if block_given?
   end
 
-  def postorder
+  def postorder(node: @root, array: [])
+    return unless node
+
+    postorder(node: node.left_children, array: array)
+    postorder(node: node.right_children, array: array)
+
+    array << node
+    return array.map(&:value) unless block_given?
+
+    array.each { |value| yield(value)} if block_given?
   end
 
   # returns the distance from node to leaf
@@ -107,4 +125,8 @@ p a.pretty_print
 #p a.level_order
 #p a.level_order {|node| puts node.value}
 p a.inorder
-(a.inorder {|node| puts node.value})
+#(a.inorder {|node| puts node.value})
+p a.preorder
+#a.preorder { |node| puts node.value}
+p a.postorder
+#a.postorder { |node| puts node.value}
