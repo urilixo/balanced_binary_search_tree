@@ -1,10 +1,11 @@
-require 'pry-byebug'
+
 class Tree
   require_relative 'Node'
   attr_accessor :root
 
   def initialize(array)
-    array.uniq!.sort!
+    p array
+    array.uniq.sort!
     @root = build_tree(array)
   end
 
@@ -23,13 +24,29 @@ class Tree
   def insert(value)
     node = @root
     until node.left_children.nil? && node.right_children.nil?
-      next node = node.left_children if value < node.value
-      next node = node.right_children if value > node.value
+      next node = node.left_children if value < node.value && !node.left_children.nil?
+      next node = node.right_children if value > node.value && !node.right_children.nil?
+
+      break
     end
-    value < node.value ? node.left_children = Node.new(value, nil, nil) : node.right_children = Node.new(value, nil, nil)
+    value < node.value ? node.left_children = build_tree([value]) : node.right_children = build_tree([value])
   end
 
-  def delete(value)
+  def delete(value, node: @root)
+    return node if node.nil?
+
+    if value < node.value
+      node.left_children = delete(value, node: node.left_children)
+    elsif value > node.value
+      node.right_children = delete(value, node: node.right_children)
+    else
+      return node.right_children if node.left_children.nil?
+      return node.left_children if node.right_children.nil?
+
+      node.value = inorder(node: node.right_children)[0]
+      node.right_children = delete(node.value, node: node.right_children)
+    end
+    node
   end
 
   def find(value, node: @root)
@@ -99,6 +116,7 @@ class Tree
   # returns the distance from node to leaf
   def height(node)
     height_sum = 0
+    return 0 if node.nil?
     return height_sum if node.left_children.nil? && node.right_children.nil?
 
     height_sum += 1
@@ -113,6 +131,14 @@ class Tree
     height(@root) - height(node)
   end
 
+  def balanced?(node: @root)
+    return true if node.nil?
+
+    left_height = height(node.left_children)
+    right_height = height(node.right_children)
+    (left_height - right_height).abs <= 1 && balanced?(node: node.left_children) && balanced?(node: node.right_children)
+  end
+
   def rebalance
     @root = build_tree(postorder)
   end
@@ -123,21 +149,3 @@ class Tree
     pretty_print(node.left_children, "#{prefix}#{is_left ? '    ' : '│   '}", is_left: true) if node.left_children
   end
 end
-
-a = Tree.new([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324])
-p a.root
-p a.pretty_print
-#p a.find(7)
-#b = a.find(7)
-#p a.depth(b)
-#p a.level_order
-#p a.level_order {|node| puts node.value}
-#p a.inorder
-#(a.inorder {|node| puts node.value})
-#p a.preorder
-#a.preorder { |node| puts node.value}
-#p a.postorder
-a.insert(600)
-a.insert(10)
-p a.pretty_print
-#a.postorder { |node| puts node.value}
